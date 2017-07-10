@@ -23,8 +23,8 @@ namespace PerformanceIndicatorWPFApp
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
-        private Handler handler;
-        private BindingList<Report> reports;
+        private ExcelHandler handler;
+        private BindingList<string> strings;
         public MainWindow()
         {
             InitializeComponent();
@@ -37,9 +37,9 @@ namespace PerformanceIndicatorWPFApp
             ofd.Filter = "Documents|*.*";
             if (ofd.ShowDialog() == true)
             {
-                handler = new Handler(ofd.FileName);
-                reports = handler.ReportList();
-                myDataGrid.ItemsSource = reports;
+                handler = new ExcelHandler(ofd.FileName);
+                handler.ToJSONFile(handler.ToJSONString());
+                MessageBox.Show("Json finished");
             }
         }
     }

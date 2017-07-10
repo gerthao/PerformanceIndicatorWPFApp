@@ -18,11 +18,11 @@ namespace PerformanceIndicatorWPFApp
             Name = name;
         }
     }
-    public class ReportFactory
+    class ReportFactory
     {
         public static Report Create()
         {
-
+            return new Report();
         }
     }
 }
