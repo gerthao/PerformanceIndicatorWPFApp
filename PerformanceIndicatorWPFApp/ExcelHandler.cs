@@ -15,7 +15,7 @@ namespace PerformanceIndicatorWPFApp
 
     class ExcelHandler
     {
-        public enum Months { Jan=1, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec }
+        public enum Months { Jan=5, Feb, Mar, Qrt1, PrevQrt1, Apr, May, Jun, Qrt2, PrevQrt2, Jul, Aug, Sep, Qrt3, PrevQrt3, Oct, Nov, Dec, Qrt4, PrevQrt4, }
         public enum Days { Sun=1, Mon, Tue, Wed, Thu, Fri, Sat}
 
         public Excel.Application App { get; set; }
@@ -64,12 +64,26 @@ namespace PerformanceIndicatorWPFApp
                 tablevel++;
 
                 for (int j = tablevel; j > 0; j--) json.Append(tab);
+                json.Append("\"Document\" : ");
+                json.AppendLine($"\"{Book.Name}\",");
+
+                for (int j = tablevel; j > 0; j--) json.Append(tab);
+                json.Append("\"Report\" : ");
+                json.AppendLine($"\"{GetCell(1, 1).Text}\",");
+
+                for (int j = tablevel; j > 0; j--) json.Append(tab);
+                json.Append("\"Plan\" : ");
+                json.AppendLine($"\"{GetCell(3, 1).Text}\",");
+
+                for (int j = tablevel; j > 0; j--) json.Append(tab);
+                json.Append("\"Year\" : ");
+                json.AppendLine($"\"{GetCell(4, 1).Text}\",");
+
+
+                for (int j = tablevel; j > 0; j--) json.Append(tab);
                 json.AppendLine("\"Tables\" : [");
                 tablevel++;
 
-                //for (int j = tablevel; j > 0; j--) json.Append(tab);
-                //json.AppendLine(@"{");
-                //tablevel++;
                 for (int i = 4; i < LastRow; i++)
                 {
                     Excel.Range cell = GetCell(i, 2);
@@ -82,7 +96,7 @@ namespace PerformanceIndicatorWPFApp
                         tablevel++;
 
                         for (int j = tablevel; j > 0; j--) json.Append(tab);
-                        json.AppendLine($"\"Name\" : \"{cell.Value2}\"");
+                        json.AppendLine($"\"TableName\" : \"{cell.Value2}\",");
 
                         for (int j = tablevel; j > 0; j--) json.Append(tab);
                         json.AppendLine("\"Rows\" : [");
@@ -104,7 +118,7 @@ namespace PerformanceIndicatorWPFApp
                         newTable = false;
 
                         for (int j = tablevel; j > 0; j--) json.Append(tab);
-                        json.AppendLine($"\"Name\" : \"{cell.Value2}\"");
+                        json.AppendLine($"\"TableName\" : \"{cell.Value2}\",");
 
                         for (int j = tablevel; j > 0; j--) json.Append(tab);
                         json.AppendLine("\"Rows\" : [");
@@ -113,34 +127,64 @@ namespace PerformanceIndicatorWPFApp
                     else
                     {
                         for (int j = tablevel; j > 0; j--) json.Append(tab);
-                        //json.Append($"\"Row\" : ");
                         json.AppendLine(@"{");
                         tablevel++;
 
                         for (int j = tablevel; j > 0; j--) json.Append(tab);
-                        json.Append("\"Name\" : ");
-                        json.AppendLine($"\"{(cell as Excel.Range).Value2}\"");
+                        json.Append("\"RowName\" : ");
+                        json.AppendLine($"\"{(cell as Excel.Range).Value2}\",");
 
                         for (int j = tablevel; j > 0; j--) json.Append(tab);
-                        json.Append("\"Value\" : ");
-                        json.AppendLine($"\"{ GetCell(i, 5).Value2}\",");
+                        json.AppendLine("\"Data\" : [");
+                        tablevel++;
 
-                        for (int j = tablevel; j > 0; j--) json.Append(tab);
-                        json.Append("\"NumberFormat\" : ");
-                        json.AppendLine($"\"{ GetCell(i, 5).NumberFormat}\",");
+                        for (int k = 4; k <= 25; k++)
+                        {
+                            for (int j = tablevel; j > 0; j--) json.Append(tab);
+                            json.Append(@"{  ");
 
+                            //Excel.Range temp = Sheet.Range[("D" + i), ("G" + i)] as Excel.Range;
+                            //Excel.Range temp2 = Sheet.Range[("I" + i), ("L" + i)] as Excel.Range;
+                            //Excel.Range temp3 = Sheet.Range[("N" + i), ("Q" + i)] as Excel.Range;
+                            //Excel.Range temp4 = Sheet.Range[("S" + i), ("V" + i)] as Excel.Range;
+
+                            json.Append("\"CellAddress\" : ");
+                            json.Append($"\"{GetCell(i, k).Address}\",  ");
+                            json.Append("\"Month\" : ");
+                            json.Append($"\"{ GetCell(8, k).Value2}\",  ");
+                            json.Append("\"Value\" : ");
+                            json.Append($"\"{ GetCell(i, k).Value2}\",  ");
+                            json.Append("\"NumberFormat\" : ");
+                            json.Append($"\"{ GetCell(i, k).NumberFormat}\",  ");
+                            json.Append("\"HasForumla\" : ");
+                            json.Append($"{ GetCell(i, k).HasFormula},  ");
+                            json.Append("\"Formula\" : ");
+                            json.Append($"\"{ GetCell(i, k).Formula}\",  ");
+                            json.Append("\"Color\" : ");
+                            json.Append($"\"{ GetCell(i, k).Interior.Color}\"  ");
+
+                            json.Append(@"}");
+
+                            if (k == 25) json.AppendLine();
+                            else json.AppendLine(",");
+                        }
+                        tablevel--;
                         for (int j = tablevel; j > 0; j--) json.Append(tab);
-                        json.Append("\"Color\" : ");
-                        json.AppendLine($"\"{ GetCell(i, 5).DisplayFormat.Interior.Color}\"");
+                        json.AppendLine("]");
 
                         tablevel--;
                         for (int j = tablevel; j > 0; j--) json.Append(tab);
-                        json.AppendLine(@"},");
+                        if(GetCell(i+1, 2).Font.Bold || GetCell(i+1, 2).Value2 == null) json.AppendLine(@"}");
+                        else json.AppendLine(@"},");
 
                     }
                 }
                 if (!newTable)
                 {
+                    for (int j = tablevel-1; j > 0; j--) json.Append(tab);
+                    json.AppendLine(@"]");
+                    tablevel--;
+
                     tablevel--;
                     for (int j = tablevel; j > 0; j--) json.Append(tab);
                     json.AppendLine(@"}");
