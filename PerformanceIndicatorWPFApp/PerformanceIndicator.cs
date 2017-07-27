@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace PerformanceIndicatorWPFApp
 {
-    class BusinessContact : Person
+    class PerformanceIndicator : Report
     {
-        public BusinessContact(string name)
+        public override string ToJson()
         {
-            this.Name = name;
+            throw new NotImplementedException();
         }
     }
 }

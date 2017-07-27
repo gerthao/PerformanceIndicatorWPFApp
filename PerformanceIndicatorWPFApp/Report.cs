@@ -6,23 +6,10 @@ using System.Threading.Tasks;
 
 namespace PerformanceIndicatorWPFApp
 {
-    class Report
+    public abstract class Report
     {
-        private static int count;
-        public int ID { get; set; }
-        public string Name { get; set; }
-        public BusinessContact Contact{get; set;}
-        public Report() { }
-        public Report(string name){
-            ID = ++count;
-            Name = name;
-        }
-    }
-    class ReportFactory
-    {
-        public static Report Create()
-        {
-            return new Report();
-        }
+        protected DateTime ExcelBaseDate = new DateTime(month: 12, day: 30, year: 1899);
+        protected Dictionary<string, string> Data;
+        public abstract string ToJson();
     }
 }
